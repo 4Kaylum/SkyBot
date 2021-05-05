@@ -26,7 +26,7 @@ class ImageUrl(commands.Converter):
 
 class EmojiCommands(utils.Cog):
 
-    @utils.command(aliases=['removeemoji', 'delemoji'], add_slash_command=False)
+    @utils.command(aliases=['removeemoji', 'delemoji'])
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_guild_permissions(manage_emojis=True)
     @commands.guild_only()
@@ -58,11 +58,13 @@ class EmojiCommands(utils.Cog):
 
         return (int(width * size_mod), int(height * size_mod))
 
-    @utils.command(aliases=['addemoji'], add_slash_command=False)
+    @utils.command(aliases=['addemoji'])
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_guild_permissions(manage_emojis=True)
     @commands.guild_only()
-    async def stealemoji(self, ctx:utils.Context, emoji:typing.Optional[typing.Union[discord.PartialEmoji, int, ImageUrl]]=None, name:str=None, animated:bool=False):
+    async def stealemoji(
+            self, ctx:utils.Context, emoji:typing.Optional[typing.Union[discord.PartialEmoji, int, ImageUrl]]=None,
+            name:str=None, animated:bool=False):
         """
         Copies an emoji and uploads it to your server.
         """
