@@ -10,6 +10,7 @@ from PIL import Image
 
 class ImageUrl(commands.Converter):
 
+    SLASH_COMMAND_ARG_TYPE = utils.interactions.ApplicationCommandOptionType.STRING
     regex = re.compile(r"(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)")
 
     async def convert(self, ctx:utils.Context, argument:str):
@@ -25,7 +26,7 @@ class ImageUrl(commands.Converter):
 
 class EmojiCommands(utils.Cog):
 
-    @utils.command(aliases=['removeemoji', 'delemoji'])
+    @utils.command(aliases=['removeemoji', 'delemoji'], add_slash_command=False)
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_guild_permissions(manage_emojis=True)
     @commands.guild_only()
@@ -34,7 +35,7 @@ class EmojiCommands(utils.Cog):
         Deletes an emoji from a server
         """
 
-        if emoji not in ctx.guild.emojis:
+        if emoji.guild_id != ctx.guild.id:
             raise commands.BadArgument("The emoji you provided is not in this server.")
 
         emoji_name = emoji.name
