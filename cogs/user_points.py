@@ -11,14 +11,23 @@ class UserPoints(utils.Cog):
     @utils.group(invoke_without_command=True)
     @commands.bot_has_permissions(send_messages=True)
     @commands.guild_only()
-    async def points(self, ctx:utils.Context, user:discord.Member=None):
+    async def points(self, ctx:utils.Context):
         """
-        See how many points a given user has.
+        The parent group for the points commands.
         """
 
         # See if they're running a subcommand
         if ctx.invoked_subcommand is not None:
             return
+        return await ctx.send_help(ctx.command)
+
+    @points.command(name="get")
+    @commands.bot_has_permissions(send_messages=True)
+    @commands.guild_only()
+    async def points_get(self, ctx:utils.Context, user:discord.Member=None):
+        """
+        Get the number of points that a user has.
+        """
 
         # Get data
         user = user or ctx.author
