@@ -57,7 +57,7 @@ class EmojiCommands(utils.Cog):
 
         return (int(width * size_mod), int(height * size_mod))
 
-    @utils.command(aliases=['addemoji'])
+    @utils.command(aliases=['addemoji'], add_slash_command=False)
     @commands.bot_has_permissions(manage_emojis=True)
     @commands.has_guild_permissions(manage_emojis=True)
     @commands.guild_only()
