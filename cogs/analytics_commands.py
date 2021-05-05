@@ -12,7 +12,7 @@ RATELIMIT_MESSAGE_PER_SECOND = 100
 PROGRESS_REPORT_INTERVAL_DEFAULT = 1000
 
 
-class AnalyticsCommands(utils.Cog):
+class AnalyticsCommands(utils.Cog, command_attrs={"add_slash_command": False}):
 
     progress_report_interval = PROGRESS_REPORT_INTERVAL_DEFAULT
 
