@@ -289,8 +289,7 @@ class MiscCommands(utils.Cog):
                 return
         await ctx.send(embed=embed)
 
-
-    @utils.command(aliases=['color'])
+    @utils.command(aliases=['color'], add_slash_command=False)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def colour(self, ctx:utils.Context, *, colour:typing.Union[discord.Role, discord.Colour, discord.Member]):
         """
