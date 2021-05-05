@@ -88,7 +88,7 @@ class DNDCommands(utils.Cog):
                 field_name, add_text, inline=False,
             )
 
-    @utils.group(name="d&d", aliases=["dnd"])
+    @utils.group(aliases=["d&d"])
     @commands.bot_has_permissions(send_messages=True)
     async def dnd(self, ctx:utils.Context):
         """
