@@ -83,12 +83,25 @@ class UserPoints(utils.Cog):
         await ctx.send(f"Removed {points} points from {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False))
         self.bot.dispatch("leaderboard_update", ctx.guild)
 
-    @points.group(name="leaderboard", invoke_without_command=True)
+    @points.subcommand_group(name="leaderboard", invoke_without_command=True)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
     async def points_leaderboard(self, ctx:utils.Context):
         """
-        Create a points leaderboard.
+        A parent group for the points leaderboard commands.
+        """
+
+        if ctx.invoked_subcommand is not None:
+            return
+        return await ctx.send_help(ctx.command)
+
+    @points_leaderboard.command(name="show")
+    @commands.has_guild_permissions(manage_roles=True)
+    @commands.bot_has_permissions(send_messages=True, embed_links=True)
+    @commands.guild_only()
+    async def points_leaderboard_show(self, ctx:utils.Context):
+        """
+        Show the points leaderboard without creating a new one.
         """
 
         # See if they're running a subcommand
