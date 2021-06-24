@@ -40,6 +40,12 @@ class GitRepo(object):
         if self.host == "Github":
             return f"https://api.github.com/repos/{self.owner}/{self.repo}/issues/{{issue}}/comments"
         return f"https://gitlab.com/api/v4/projects/{quote(self.owner + '/' + self.repo, safe='')}/issues/{{issue}}/notes"
+    
+    @property
+    def pull_requests_api_url(self):
+        if self.host == "Github":
+            return f"https://api.github.com/repos/{self.owner}/{self.repo}/pulls"
+        return f"https://gitlab.com/api/v4/projects/{quote(self.owner + '/' + self.repo,safe='')}/merge_requests"
 
     @classmethod
     async def convert(cls, ctx:utils.Context, value:str):
@@ -88,6 +94,7 @@ class GithubCommands(utils.Cog):
     GIT_ISSUE_CLOSED_EMOJI = "<:github_issue_closed:817984658372689960>"
     GIT_PR_OPEN_EMOJI = "<:github_pr_open:817986200618139709>"
     GIT_PR_CLOSED_EMOJI = "<:github_pr_closed:817986200962072617>"
+    GIT_PR_CHANGES_EMOJI = "<:github_changes_requested:819115452948938772>"
 
     @utils.Cog.listener()
     async def on_message(self, message):
@@ -318,6 +325,8 @@ class GithubCommands(utils.Cog):
             if not user_rows or not user_rows[0][f'{repo.host.lower()}_username']:
                 return await ctx.send(f"You need to link your {repo.host} account to Discord to run this command - see `{ctx.clean_prefix}website`.")
 
+        user_login = user_rows[0][f'{repo.host.lower()}_username']
+
         # Get the issues
         if repo.host == "Github":
             params = {'state': 'all' if list_closed else 'open'}
@@ -337,6 +346,14 @@ class GithubCommands(utils.Cog):
                 return await ctx.send(f"I was unable to get the issues on that repository - `{data}`.")
         if len(data) == 0:
             return await ctx.send("There are no issues in the repository!")
+
+        # Request data for PRs
+        has_open_pr = any('pull_request' in issue for issue in data if issue.get('state').startswith('open'))
+        pull_requests = {}
+        if has_open_pr:
+            async with self.bot.session.get(repo.pull_requests_api_url, params=params, headers=headers) as r:
+                pull_data = await r.json()
+                pull_requests = {str(pull['number']):pull for pull in pull_data}
 
         # Format the lines
         output = []
@@ -358,10 +375,15 @@ class GithubCommands(utils.Cog):
 
             # Work out the emoji to use
             emoji_to_use = "?"
-            if issue.get("pull_request"):
+            pull_request_data = pull_requests.get(issue_id) or issue.get('pull_request')
+            if pull_request_data:
                 emoji_to_use = self.GIT_PR_OPEN_EMOJI
                 if not issue.get('state').startswith('open'):
                     emoji_to_use = self.GIT_PR_CLOSED_EMOJI
+                elif pull_request_data.get('requested_reviewers'):
+                    if any(reviewer['login'] == user_login for reviewer in pull_request_data['requested_reviewers']):
+                        # User has been requested for changes/review
+                        emoji_to_use = self.GIT_PR_CHANGES_EMOJI
             else:
                 emoji_to_use = self.GIT_ISSUE_OPEN_EMOJI
                 if not issue.get('state').startswith('open'):
